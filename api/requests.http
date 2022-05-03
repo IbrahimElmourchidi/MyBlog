@@ -1,0 +1,25 @@
+### create new user
+POST http://localhost:3000/user/
+Content-Type: application/json
+
+{
+    "name":"hema",
+    "username":"hema2",
+    "password":"123465Hr"
+}
+
+### find user by id
+Get http://localhost:3000/user/6a2837bd-d00a-4360-baaa-fc1859521587
+
+### update user
+PUT http://localhost:3000/user/8660ed56-b579-4a5d-b520-2c76b7ea76fd
+content-type:application/json
+
+{
+    "name":"hema2",
+    "username":"justhema",
+    "password":"123465Hr"
+}
+
+### get all users paginated
+GET http://localhost:3000/user/all?page=1&limit=500

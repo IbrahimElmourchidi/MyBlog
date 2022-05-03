@@ -39,4 +39,5 @@ _**May be in the future will be a Video series on youtube as well**_
 
 This takes you step by step how this project was build
 
-- [Day 001: Create an Nestjs (api)](https://github.com/IbrahimElmourchidi/MyBlog/tree/main/api/user_stories/001.md)
+- [Day 001: Create an Nestjs (api)](https://github.com/IbrahimElmourchidi/MyBlog/blob/main/api/user_stories/001.md)
+- [Day 001: Create basic crud end points](https://github.com/IbrahimElmourchidi/MyBlog/blob/main/api/user_stories/002.md)
