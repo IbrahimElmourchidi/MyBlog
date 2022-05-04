@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { IPaginationOptions } from 'nestjs-typeorm-paginate';
 import { UserI } from 'src/interfaces/user.interface';
+import { LoginDto } from './model/dots/login.dot';
 import { UserDto } from './model/dots/user.dto';
 import { User } from './model/entities/user.entity';
 import { UserService } from './services/user.service';
@@ -47,5 +48,10 @@ export class UserController {
     @Body() userInstance: UserDto,
   ): Promise<UserI> {
     return this.userService.updateUser(id, userInstance);
+  }
+
+  @Post('/login')
+  login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
+    return this.userService.login(loginDto);
   }
 }

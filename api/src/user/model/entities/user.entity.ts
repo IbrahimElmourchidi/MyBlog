@@ -1,5 +1,12 @@
 import { UserI } from 'src/interfaces/user.interface';
-import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  BeforeInsert,
+  BeforeUpdate,
+} from 'typeorm';
 
 @Entity()
 export class User implements UserI {
@@ -24,4 +31,18 @@ export class User implements UserI {
     length: 60,
   })
   password: string;
+
+  @Column({
+    nullable: false,
+    unique: true,
+    length: 128,
+  })
+  email: string;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  private dataToLower(): void {
+    this.email = this.email.toLocaleLowerCase();
+    this.username = this.username.toLocaleLowerCase();
+  }
 }
