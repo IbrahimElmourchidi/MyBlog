@@ -1,13 +1,12 @@
-import { IsString, Length, Matches } from 'class-validator';
-import { UserI } from 'src/interfaces/user.interface';
+import { IsEmail, IsString, Length, Matches } from 'class-validator';
 
-export class UserDto {
+import { LoginDto } from './login.dot';
+
+export class UserDto extends LoginDto {
   @IsString()
   @Length(2, 50)
   name: string;
   @IsString()
   @Length(2, 30)
   username: string;
-  @Matches('^(?=.*[A-Z].*[a-z])(?=.*[0-9]).{8,30}$')
-  password: string;
 }

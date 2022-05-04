@@ -4,22 +4,33 @@ Content-Type: application/json
 
 {
     "name":"hema",
-    "username":"hema2",
-    "password":"123465Hr"
+    "username":"hemausername",
+    "password":"123456Hr",
+    "email":"hema@gmail.com"
 }
 
 ### find user by id
-Get http://localhost:3000/user/6a2837bd-d00a-4360-baaa-fc1859521587
+Get http://localhost:3000/user/9dab2779-a00c-4946-b178-fad2fa94438e
 
 ### update user
-PUT http://localhost:3000/user/8660ed56-b579-4a5d-b520-2c76b7ea76fd
+PUT http://localhost:3000/user/9dab2779-a00c-4946-b178-fad2fa94438e
 content-type:application/json
 
 {
     "name":"hema2",
     "username":"justhema",
-    "password":"123465Hr"
+    "password":"123456Hr",
+    "email":"hema2@gmail.com"
 }
 
 ### get all users paginated
 GET http://localhost:3000/user/all?page=1&limit=500
+
+### login user
+POST http://localhost:3000/user/login
+Content-Type: application/json
+
+{
+    "email":"hema@gmail.com",
+    "password":"123456Hr"
+}

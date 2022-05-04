@@ -8,7 +8,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserI } from 'src/interfaces/user.interface';
 import { DeleteResult, Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 
 import { UserDto } from '../model/dots/user.dto';
 import { User } from '../model/entities/user.entity';
@@ -17,24 +16,28 @@ import {
   paginate,
   Pagination,
 } from 'nestjs-typeorm-paginate';
+import { AuthService } from 'src/auth/services/auth.service';
+import { LoginDto } from '../model/dots/login.dot';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
+    private authService: AuthService,
   ) {}
 
   // create new user
   async create(userInstance: UserDto): Promise<UserI> {
     // check if the user already exists
-    const user = await this.getUserByUserName(userInstance.username);
+    const user = await this.getUserByEmail(userInstance.email);
     if (user) throw new ConflictException('user already exits');
-    userInstance['password'] = await bcrypt.hash(userInstance['password'], 8);
+    const hash = await this.authService.hashPassword(userInstance.password);
+    userInstance.password = hash;
     const newRecord = this.userRepo.create(userInstance);
     return this.saveUser(newRecord);
   }
   // findOne by id
-  async findUserByID(id: string): Promise<User> {
+  findUserByID(id: string): Promise<User> {
     try {
       return this.userRepo.findOne({ where: { id } });
     } catch (error) {
@@ -59,8 +62,11 @@ export class UserService {
     const user: User = await this.findUserByID(id);
     if (!user) throw new NotFoundException('invalid credentials2');
     // check if password matched
-    if (!(await bcrypt.compare(userInstance.password, user.password)))
-      throw new UnauthorizedException('invalid credentials');
+    const passMatches: boolean = await this.authService.comparePassword(
+      userInstance.password,
+      user.password,
+    );
+    if (!passMatches) throw new UnauthorizedException('invalid credentials');
     Object.assign(user, userInstance);
     return this.saveUser(user);
   }
@@ -70,20 +76,37 @@ export class UserService {
     const user: User = await this.findUserByID(id);
     if (!user) throw new NotFoundException('invalid credentials');
     // check if password matched
-    if (!(await bcrypt.compare(password, user.password)))
-      throw new UnauthorizedException('invalid credentials');
+    const passMatches: boolean = await this.authService.comparePassword(
+      password,
+      user.password,
+    );
+    if (!passMatches) throw new UnauthorizedException('invalid credentials');
     return this.userRepo.delete({ id });
   }
 
-  private async getUserByUserName(username: string): Promise<User> {
+  async login(loginInstance: LoginDto): Promise<{ token: string }> {
+    // check if user exist
+    const user: User = await this.getUserByEmail(loginInstance.email);
+    if (!user) throw new UnauthorizedException('invalid credentials');
+    // verify the password
+    const passMatches: boolean = await this.authService.comparePassword(
+      loginInstance.password,
+      user.password,
+    );
+    if (!passMatches) throw new UnauthorizedException('invalid credentials');
+    const token: string = await this.authService.generateJWT(user);
+    return { token };
+  }
+
+  private getUserByEmail(email: string): Promise<User> {
     try {
-      return this.userRepo.findOne({ where: { username } });
+      return this.userRepo.findOne({ where: { email } });
     } catch (error) {
       throw new InternalServerErrorException('Database Error');
     }
   }
 
-  private async saveUser(userRecord: UserI): Promise<UserI> {
+  private saveUser(userRecord: UserI): Promise<UserI> {
     try {
       return this.userRepo.save(userRecord);
     } catch (error) {
